@@ -1,0 +1,46 @@
+# ============================================
+# Finance Tracker — Docker Compose (Development)
+# ============================================
+#
+# 💡 CONCEPT: Docker Compose
+#    Defines all your app's services in a single file.
+#    `docker compose up` starts everything.
+#    `docker compose down` stops everything.
+#
+#    Each service is an isolated container with its own:
+#    - File system
+#    - Internal network (they talk by name: "backend", "frontend")
+#    - Environment variables
+#
+# 💡 CONCEPT: Volumes (volumes)
+#    Volumes mount folders from your Mac inside the container.
+#    This enables hot reload: you edit on your Mac → the container
+#    detects the change → restarts automatically.
+
+services:
+  backend:
+    build:
+      context: ./backend
+      target: dev  # Uses the "dev" stage from the Dockerfile
+    ports:
+      - "8000:8000"  # localhost:8000 → container:8000
+    volumes:
+      # Mount your local code inside the container (hot reload)
+      - ./backend/app:/app/app
+      # Mount the data folder to persist the database
+      - ./data:/app/data
+    environment:
+      - DATABASE_URL=sqlite:///data/finance.db
+      - DEBUG=true
+
+  frontend:
+    build:
+      context: ./frontend
+      target: dev  # Uses the "dev" stage from the Dockerfile
+    ports:
+      - "3000:5173"  # localhost:3000 → container:5173
+    volumes:
+      # Mount your local code for React hot reload
+      - ./frontend/src:/app/src
+    depends_on:
+      - backend  # Waits for the backend to start first

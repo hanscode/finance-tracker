@@ -85,6 +85,50 @@ The development setup includes:
 - **Frontend** hot reload on `http://localhost:3000` (changes appear instantly in the browser)
 - **Swagger UI** on `http://localhost:8000/docs` (interactive API documentation)
 
+### IDE setup (optional)
+
+The code runs in Docker, but most IDEs give better autocomplete and
+inline errors if they can see a local Python environment. Use whatever
+editor you prefer (VSCode, PyCharm, Neovim, Sublime, etc.) — just point
+its Python interpreter at a local `.venv`:
+
+```bash
+cd backend
+pyenv local 3.12.13                           # (if using pyenv)
+python -m venv .venv
+.venv/bin/pip install -U pip
+.venv/bin/pip install -r requirements.txt -r requirements-dev.txt
+```
+
+Then configure your IDE to use `backend/.venv/bin/python` as the
+interpreter. The `.venv` is gitignored — each developer sets it up
+locally.
+
+When you change `requirements.txt`, keep the `.venv` in sync:
+
+```bash
+cd backend && .venv/bin/pip install -r requirements.txt -r requirements-dev.txt
+```
+
+### Running commands (Alembic, pytest, etc.)
+
+The `.venv` is only for IDE IntelliSense. All commands run in Docker:
+
+```bash
+# Migrations
+docker compose exec backend alembic upgrade head
+docker compose exec backend alembic revision --autogenerate -m "message"
+
+# Python REPL
+docker compose exec backend python
+
+# Tests
+docker compose exec backend pytest
+
+# Shell
+docker compose exec backend bash
+```
+
 ### Project structure
 
 ```

@@ -32,7 +32,7 @@ Shared base classes and mixins for SQLAlchemy models.
    The class ends up with attributes from all three.
 """
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from sqlalchemy import DateTime
 from sqlalchemy.orm import Mapped, mapped_column
@@ -51,7 +51,7 @@ def utcnow() -> datetime:
        (Plain `datetime.now()` returns "naive" datetimes without tz info,
        which silently causes bugs.)
     """
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 class TimestampMixin:

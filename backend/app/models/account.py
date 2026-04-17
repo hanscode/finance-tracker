@@ -83,8 +83,9 @@ class Account(Base, TimestampMixin):
     )
 
     # --- Relationships ---
-    # `back_populates` creates a two-way link: if User has `account = relationship(..., back_populates="users")`,
-    # and Account has `users = relationship(..., back_populates="account")`, then:
+    # `back_populates` creates a two-way link. If User has
+    # `account = relationship(..., back_populates="users")` and Account has
+    # `users = relationship(..., back_populates="account")`, then:
     #   user.account  → returns the Account
     #   account.users → returns a list of Users
     users: Mapped[list[User]] = relationship(

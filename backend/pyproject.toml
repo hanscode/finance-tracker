@@ -1,7 +1,8 @@
 [tool.ruff]
 # Line length target. Longer than black's 88 because FastAPI code tends
-# to have longer type hints on endpoint signatures.
-line-length = 100
+# to have longer type hints on endpoint signatures, and we use aligned
+# seed-data tables (categories, etc.) that read better a bit wider.
+line-length = 110
 
 # Target Python version for auto-fix suggestions
 target-version = "py312"

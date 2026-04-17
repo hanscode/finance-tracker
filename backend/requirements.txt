@@ -9,10 +9,15 @@ alembic==1.15.2
 # Validation (included with FastAPI, but pinned for clarity)
 pydantic==2.11.1
 pydantic-settings==2.9.1
+# Required for pydantic.EmailStr (RFC-compliant email validation)
+email-validator==2.2.0
 
 # Authentication
 python-jose[cryptography]==3.4.0
-passlib[bcrypt]==1.7.4
+# pwdlib is the modern replacement for passlib (which is abandoned).
+# We install both bcrypt and argon2 so PasswordHash.recommended() can use
+# argon2id (PHC winner, GPU-resistant) with bcrypt as fallback.
+pwdlib[bcrypt,argon2]==0.2.1
 
 # Testing
 pytest==8.3.5

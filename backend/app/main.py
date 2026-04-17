@@ -26,6 +26,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
+from app.routers import auth, setup
 
 
 @asynccontextmanager
@@ -74,7 +75,19 @@ app.add_middleware(
 )
 
 
-@app.get("/api/health")
+# ============================================================
+# Routers — each feature lives in its own module under app/routers/
+# ============================================================
+#
+# 💡 CONCEPT: include_router
+#    Each router is a self-contained group of endpoints (prefix + tags).
+#    We register them on the main app here. As we add features
+#    (transactions, categories, etc.), we'll include more routers.
+app.include_router(setup.router)
+app.include_router(auth.router)
+
+
+@app.get("/api/health", tags=["health"])
 def health_check():
     """
     Health check endpoint — verifies the API is running.

@@ -519,8 +519,8 @@ Track debt repayment progress.
 | Phase | Focus | Key Deliverables |
 |-------|-------|-----------------|
 | 1 ✅ | Project setup | Docker, FastAPI, React, Tailwind, shadcn/ui |
-| 2 | Data models + migrations | SQLAlchemy models, Alembic setup |
-| 3 | Auth system | Register, login, JWT, protected routes |
+| 2 ✅ | Data models + migrations | SQLAlchemy models (13 tables), Alembic setup |
+| 3 ✅ | Auth system | Setup wizard, password login, JWT, HTTPBearer, revocable sessions |
 | 4 | Categories + Transactions API | CRUD endpoints with validation |
 | 5 | Frontend foundation | React Router, layouts, auth pages |
 | 6 | Transactions UI | Transaction list, forms, filters |

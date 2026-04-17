@@ -1,0 +1,66 @@
+{
+  // See https://containers.dev/implementors/json_reference/ for the full schema
+  "name": "Finance Tracker — Backend",
+
+  // Use the existing docker-compose.yml from the project.
+  // Dev Containers will reuse our compose setup instead of building a new image.
+  "dockerComposeFile": "../docker-compose.yml",
+
+  // Which service from docker-compose.yml to attach to
+  "service": "backend",
+
+  // The folder inside the container where VSCode should open.
+  // This matches WORKDIR /app in our backend Dockerfile.
+  "workspaceFolder": "/app",
+
+  // Keep the container running even after VSCode disconnects.
+  // This way other tools (our frontend, docker compose logs) keep working.
+  "shutdownAction": "none",
+
+  // VSCode customizations applied inside the container
+  "customizations": {
+    "vscode": {
+      // Extensions auto-installed in the container.
+      // These are Python/FastAPI-specific; they only make sense inside the backend container.
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "charliermarsh.ruff",
+        "tamasfe.even-better-toml"
+      ],
+
+      // Settings that apply inside the container
+      "settings": {
+        // Point Python extension at the container's Python (not local)
+        "python.defaultInterpreterPath": "/usr/local/bin/python",
+
+        // Pylance gives us rich IntelliSense based on the installed packages
+        "python.languageServer": "Pylance",
+
+        // Use Ruff as formatter + linter (industry standard, fast)
+        "[python]": {
+          "editor.defaultFormatter": "charliermarsh.ruff",
+          "editor.formatOnSave": true,
+          "editor.codeActionsOnSave": {
+            "source.organizeImports": "explicit",
+            "source.fixAll": "explicit"
+          }
+        },
+
+        // Test discovery (pytest)
+        "python.testing.pytestEnabled": true,
+        "python.testing.unittestEnabled": false,
+        "python.testing.pytestArgs": ["tests"]
+      }
+    }
+  },
+
+  // Forward ports so you can still access them from your Mac's browser
+  "forwardPorts": [8000],
+  "portsAttributes": {
+    "8000": {
+      "label": "FastAPI backend",
+      "onAutoForward": "notify"
+    }
+  }
+}

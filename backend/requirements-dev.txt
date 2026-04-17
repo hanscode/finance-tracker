@@ -1,0 +1,11 @@
+# Development-only dependencies
+# Installed in the dev container but NOT in production images.
+
+# Linter + formatter (industry standard, extremely fast)
+ruff==0.11.4
+
+# Type checker (optional but useful)
+mypy==1.15.0
+
+# Better error traces in tests and REPL
+rich==13.9.4

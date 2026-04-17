@@ -28,6 +28,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 # ---- Development stage ----
 FROM base AS dev
 
+# Install dev-only tools (ruff, mypy, rich) for linting/formatting inside
+# VSCode Dev Containers. These are NOT included in the prod stage.
+COPY requirements-dev.txt .
+RUN pip install --no-cache-dir -r requirements-dev.txt
+
 # Copy source code (in dev, overridden by volume mount)
 COPY . .
 

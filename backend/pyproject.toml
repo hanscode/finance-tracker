@@ -1,0 +1,40 @@
+[tool.ruff]
+# Line length target. Longer than black's 88 because FastAPI code tends
+# to have longer type hints on endpoint signatures.
+line-length = 100
+
+# Target Python version for auto-fix suggestions
+target-version = "py312"
+
+[tool.ruff.lint]
+# Rules to enable. Not too strict — we want useful warnings, not noise.
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes (unused imports, undefined names)
+    "I",    # isort (import sorting)
+    "B",    # flake8-bugbear (common bugs)
+    "UP",   # pyupgrade (modernize syntax)
+    "N",    # pep8-naming
+]
+
+# Per-file ignores
+[tool.ruff.lint.per-file-ignores]
+# Alembic migrations don't need linting
+"alembic/versions/*.py" = ["E501", "F401"]
+# __init__.py files often have unused imports on purpose (re-exports)
+"**/__init__.py" = ["F401"]
+
+[tool.ruff.lint.isort]
+# Treat "app" as first-party (own code)
+known-first-party = ["app"]
+
+[tool.ruff.format]
+# Match black defaults for things we don't override
+quote-style = "double"
+indent-style = "space"
+
+[tool.mypy]
+python_version = "3.12"
+check_untyped_defs = true
+ignore_missing_imports = true

@@ -26,7 +26,6 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
-from app.database import Base, engine
 
 
 @asynccontextmanager
@@ -38,14 +37,21 @@ async def lifespan(app: FastAPI):
        It's like Flask's @app.before_first_request but better.
        Code before `yield` runs on app STARTUP.
        Code after `yield` runs on app SHUTDOWN.
-       Here we create the DB tables on startup.
+
+    💡 CONCEPT: Why we don't call create_all() anymore
+       In the initial setup we used `Base.metadata.create_all(engine)` to
+       auto-create tables. That's fine to bootstrap, but it doesn't track
+       schema changes over time.
+
+       Now that we have Alembic, the workflow is:
+           docker compose exec backend alembic upgrade head
+
+       This applies any pending migrations. Much better for real projects
+       because you get proper versioning and rollback support.
     """
-    # Startup: create tables if they don't exist
-    Base.metadata.create_all(bind=engine)
     print(f"✓ {settings.APP_NAME} started")
     print(f"✓ Database: {settings.DATABASE_URL}")
     yield
-    # Shutdown: cleanup if needed
     print(f"✗ {settings.APP_NAME} shutting down")
 
 

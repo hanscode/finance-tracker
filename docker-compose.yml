@@ -27,6 +27,9 @@ services:
     volumes:
       # Mount your local code inside the container (hot reload)
       - ./backend/app:/app/app
+      # Mount Alembic migrations (so changes are reflected in the container)
+      - ./backend/alembic:/app/alembic
+      - ./backend/alembic.ini:/app/alembic.ini
       # Mount the data folder to persist the database
       - ./data:/app/data
     environment:

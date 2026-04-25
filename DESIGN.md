@@ -521,7 +521,8 @@ Track debt repayment progress.
 | 1 ✅ | Project setup | Docker, FastAPI, React, Tailwind, shadcn/ui |
 | 2 ✅ | Data models + migrations | SQLAlchemy models (13 tables), Alembic setup |
 | 3 ✅ | Auth system | Setup wizard, password login, JWT, HTTPBearer, revocable sessions |
-| 4 | Categories + Transactions API | CRUD endpoints with validation |
+| 4a ✅ | Categories CRUD API | List/Create/Update/Archive/Restore with role-based perms |
+| 4b | Transactions CRUD API | CRUD with filters, pagination, tags |
 | 5 | Frontend foundation | React Router, layouts, auth pages |
 | 6 | Transactions UI | Transaction list, forms, filters |
 | 7 | Budget engine (50/30/20) | Budget calculations, budget page |

@@ -1,23 +1,10 @@
-"""
-Finance Tracker — FastAPI Application Entry Point.
+"""Finance Tracker — FastAPI application entry point.
 
-💡 CONCEPT: FastAPI vs Flask
-   In Flask you wrote:
-       app = Flask(__name__)
-       @app.route('/pets', methods=['GET'])
-       def get_pets():
-           ...
-
-   In FastAPI it's similar but more explicit:
-       app = FastAPI()
-       @app.get('/pets')
-       def get_pets():
-           ...
-
-   Key differences:
-   - HTTP methods are separate decorators (@app.get, @app.post, etc.)
-   - Data types are validated automatically
-   - Generates Swagger documentation at /docs automatically
+Key things to know about FastAPI used here:
+- HTTP methods are separate decorators (@app.get, @app.post, etc.)
+- Request/response bodies are validated automatically via Pydantic
+- Swagger UI is auto-generated at /docs
+- Lifespan context manager (below) replaces the older @app.on_event hooks
 """
 
 from contextlib import asynccontextmanager
@@ -26,7 +13,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
-from app.routers import auth, setup
+from app.routers import auth, category, setup
 
 
 @asynccontextmanager
@@ -35,7 +22,6 @@ async def lifespan(app: FastAPI):
     Code that runs on app startup and shutdown.
 
     💡 CONCEPT: Lifespan Events
-       It's like Flask's @app.before_first_request but better.
        Code before `yield` runs on app STARTUP.
        Code after `yield` runs on app SHUTDOWN.
 
@@ -85,6 +71,7 @@ app.add_middleware(
 #    (transactions, categories, etc.), we'll include more routers.
 app.include_router(setup.router)
 app.include_router(auth.router)
+app.include_router(category.router)
 
 
 @app.get("/api/health", tags=["health"])

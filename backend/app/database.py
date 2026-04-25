@@ -2,12 +2,12 @@
 Database connection and session management.
 
 💡 CONCEPT: SQLAlchemy Engine vs Session
-   In your Techdegree projects you used SQLAlchemy like this:
+   The classic SQLAlchemy pattern is:
        engine = create_engine('sqlite:///books.db')
        Session = sessionmaker(bind=engine)
        session = Session()
 
-   Here we do the same but with two improvements:
+   Here we add two improvements on top of that:
    1. WAL mode — allows multiple reads to happen at the same time
    2. Dependency Injection — FastAPI injects the session automatically into each request
 
@@ -60,8 +60,7 @@ def get_db():
     Dependency that FastAPI injects into each endpoint.
 
     💡 CONCEPT: Dependency Injection
-       In Flask you did: session = Session() at the top of the file.
-       In FastAPI, each endpoint declares that it NEEDS a session:
+       Each endpoint declares that it NEEDS a session:
 
            @router.get("/items")
            def get_items(db: Session = Depends(get_db)):

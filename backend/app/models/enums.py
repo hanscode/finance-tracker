@@ -1,9 +1,8 @@
 """
 Shared enumerations used across the data model.
 
-💡 CONCEPT: Why Enums instead of strings?
-   In the Techdegree you probably used strings like "income" or "expense"
-   directly. That works but has problems:
+💡 CONCEPT: Why Enums instead of bare strings?
+   Using string literals like "income" or "expense" directly works, but:
 
    1. Typos: "incmoe" silently creates invalid data
    2. No autocomplete: you have to remember every valid value

@@ -6,6 +6,11 @@ from app.schemas.auth import (
     TokenResponse,
     UserResponse,
 )
+from app.schemas.category import (
+    CategoryCreate,
+    CategoryResponse,
+    CategoryUpdate,
+)
 from app.schemas.setup import (
     SetupRequest,
     SetupResponse,
@@ -22,4 +27,8 @@ __all__ = [
     "LogoutResponse",
     "TokenResponse",
     "UserResponse",
+    # Category
+    "CategoryCreate",
+    "CategoryResponse",
+    "CategoryUpdate",
 ]

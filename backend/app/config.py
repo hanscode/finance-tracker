@@ -1,9 +1,8 @@
 """
 Application configuration using Pydantic Settings.
 
-💡 CONCEPT: Pydantic Settings
-   In your Techdegree projects, you probably used hardcoded variables
-   or read them with os.getenv(). Pydantic Settings is better because:
+💡 CONCEPT: Pydantic Settings vs raw os.getenv()
+   Pydantic Settings is preferred over plain `os.getenv()` because:
    - It validates types automatically (if DATABASE_URL isn't a string, it fails clearly)
    - It loads variables from .env automatically
    - It centralizes all configuration in one place

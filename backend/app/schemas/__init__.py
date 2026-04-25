@@ -16,6 +16,14 @@ from app.schemas.setup import (
     SetupResponse,
     SetupStatusResponse,
 )
+from app.schemas.transaction import (
+    TagResponse,
+    TransactionCreate,
+    TransactionCreatorInfo,
+    TransactionListResponse,
+    TransactionResponse,
+    TransactionUpdate,
+)
 
 __all__ = [
     # Setup
@@ -31,4 +39,11 @@ __all__ = [
     "CategoryCreate",
     "CategoryResponse",
     "CategoryUpdate",
+    # Transaction
+    "TagResponse",
+    "TransactionCreate",
+    "TransactionCreatorInfo",
+    "TransactionListResponse",
+    "TransactionResponse",
+    "TransactionUpdate",
 ]

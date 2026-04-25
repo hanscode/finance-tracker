@@ -1,0 +1,186 @@
+"""
+Pydantic schemas for the Transaction resource.
+
+The most important resource in the app: every budget, dashboard, and
+report is built on top of these.
+
+💡 CONCEPT: Decimal in JSON
+   Pydantic v2 serializes `Decimal` as a STRING in JSON output, not a
+   number. This preserves precision: "127.43" never has rounding error.
+
+   Frontend: read as string, convert to Number/Decimal as needed for
+   math, but format using the string for display.
+"""
+
+import datetime as dt
+from decimal import Decimal
+
+from pydantic import BaseModel, ConfigDict, Field, computed_field
+
+from app.models.enums import BudgetBucket, TransactionType
+
+# ============================================================
+# Nested schemas (used inside TransactionResponse)
+# ============================================================
+
+class TagResponse(BaseModel):
+    """Lightweight tag info embedded in transaction responses."""
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    name: str
+    color: str | None
+
+
+class TransactionCreatorInfo(BaseModel):
+    """Minimal user info — just enough to show 'Created by Hans' in the UI.
+
+    💡 CONCEPT: Why not return the full UserResponse?
+       The full user has internal fields (last_login_at, is_active, etc.)
+       that don't belong in a transaction list. We expose only what the
+       UI needs for attribution.
+    """
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    name: str
+
+
+# ============================================================
+# Field validation rules
+# ============================================================
+#
+# Numeric(12, 2) on the model means up to 9_999_999_999.99. We enforce
+# matching bounds at the schema level so a client can't even send a
+# value the DB would refuse.
+AMOUNT_MAX = Decimal("9999999999.99")
+AMOUNT_MIN = Decimal("0.01")  # transactions are always positive; type signals direction
+
+
+# ============================================================
+# POST /api/transactions
+# ============================================================
+
+class TransactionCreate(BaseModel):
+    """Payload to create a new transaction."""
+
+    type: TransactionType = Field(description="Income, expense, savings, etc.")
+
+    amount: Decimal = Field(
+        gt=0,                       # strictly positive
+        le=AMOUNT_MAX,
+        max_digits=12,              # matches Numeric(12, 2)
+        decimal_places=2,
+        description="Always positive. The `type` field signals direction (in/out).",
+    )
+
+    category_id: int = Field(
+        gt=0,
+        description="Must reference an existing, non-archived category in this account.",
+    )
+
+    date: dt.date = Field(description="When the transaction actually occurred.")
+
+    description: str | None = Field(
+        default=None,
+        max_length=500,
+        description="Optional free-form note (e.g., 'Coffee at Blue Bottle').",
+    )
+
+    budget_bucket: BudgetBucket | None = Field(
+        default=None,
+        description=(
+            "50/30/20 classification. If null, we'll use the category's default bucket. "
+            "Send explicitly only if you want to override the category."
+        ),
+    )
+
+    tags: list[str] = Field(
+        default_factory=list,
+        max_length=10,              # cap the number of tags per transaction
+        description=(
+            "List of tag names (free-form strings, max 50 chars each). "
+            "Tags are auto-created if they don't exist."
+        ),
+    )
+
+
+# ============================================================
+# PUT /api/transactions/{id}
+# ============================================================
+
+class TransactionUpdate(BaseModel):
+    """Partial update payload. All fields optional (PATCH semantics)."""
+    model_config = ConfigDict(extra="forbid")
+
+    type: TransactionType | None = None
+    amount: Decimal | None = Field(
+        default=None,
+        gt=0,
+        le=AMOUNT_MAX,
+        max_digits=12,
+        decimal_places=2,
+    )
+    category_id: int | None = Field(default=None, gt=0)
+    date: dt.date | None = None
+    description: str | None = Field(default=None, max_length=500)
+    budget_bucket: BudgetBucket | None = None
+
+    # If `tags` is sent, it REPLACES the current tag list.
+    # If `tags` is omitted, tags are unchanged.
+    # To remove all tags, send `"tags": []`.
+    tags: list[str] | None = Field(default=None, max_length=10)
+
+
+# ============================================================
+# Response schemas
+# ============================================================
+
+class TransactionResponse(BaseModel):
+    """Full shape of a single transaction in API responses."""
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    type: TransactionType
+    amount: Decimal
+    category_id: int
+    date: dt.date
+    description: str | None
+    budget_bucket: BudgetBucket | None
+
+    # Recurrence — null if user-created, set if auto-generated by a rule
+    recurring_rule_id: int | None
+
+    # Attribution — nested user info, populated from the `creator` relationship
+    # on the model. Will be null if the user was deleted (FK has ON DELETE SET NULL).
+    creator: TransactionCreatorInfo | None
+    created_at: dt.datetime
+    updated_at: dt.datetime
+
+    # Tags (loaded eagerly from the relationship)
+    tags: list[TagResponse]
+
+    @computed_field  # type: ignore[prop-decorator]
+    @property
+    def is_recurring(self) -> bool:
+        """True if this transaction was generated by a recurring rule."""
+        return self.recurring_rule_id is not None
+
+
+class TransactionListResponse(BaseModel):
+    """Paginated list of transactions with metadata.
+
+    💡 CONCEPT: Why include pagination metadata in the response?
+       The client needs to know:
+       - How many total results exist (for "Showing 1-50 of 437")
+       - How many pages there are (for the page selector)
+       - Whether there's a "next page" available
+
+       Returning these fields once per response is cheaper than letting
+       the client compute them by paginating to the end.
+    """
+    items: list[TransactionResponse]
+    page: int = Field(ge=1, description="Current page (1-indexed).")
+    per_page: int = Field(ge=1, description="Items per page.")
+    total: int = Field(ge=0, description="Total matching transactions across all pages.")
+    total_pages: int = Field(ge=0, description="Total page count.")
